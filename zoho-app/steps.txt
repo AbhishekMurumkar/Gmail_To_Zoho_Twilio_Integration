@@ -1,0 +1,68 @@
+Steps for generating first token
+1. goto https://api-console.zoho.in/client/ and generate self client
+2. on Generate code tab
+	2.1 scope = "Desk.tickets.ALL","Desk.contacts.READ"
+	2.2 time = 10mins
+	2.3 some sample message and create token
+3. download the self_token.json in a folder
+
+Steps for authenticating with above token data
+1. (POST) https://accounts.zoho.in/oauth/v2/token
+2. keep following parameters in the headers part of the request
+Parameter 	Description
+code 	Authorization code obtained after generating the grant token.
+client_id 	Client ID obtained after registering the client.
+client_secret 	Client secret obtained after registering the client.
+grant_type 	"authorization_code"
+redirect_uri 	Redirect URI mentioned while registering the client.
+
+from which we get following output
+{
+    "access_token": "1000.8e785f6fd314822bd3bce18e1d53c3ac.42445c66c771273ef3e3ade9c1c94974",
+    "refresh_token": "1000.038f59fa3afeab1f150155dd8c3a5e83.22a56ed8557c09afc97d1dd73bdddfe9",
+    "api_domain": "https://www.zohoapis.in",
+    "token_type": "Bearer",
+    "expires_in": 3600
+}
+
+3. refreshing tokens
+
+output will be 
+{
+    "access_token": "1000.ad81f549842543aaa1570e4a35ead962.a74f3bb70732d10a74491e38f413ec26",
+    "api_domain": "https://www.zohoapis.in",
+    "token_type": "Bearer",
+    "expires_in": 3600
+}
+
+4. In order to create a ticket, first we need to get a contact with id init
+url : https://desk.zoho.in/api/v1/contacts
+header:
+	Authorization: Zoho-oauthtoken <present-access_token>
+response:
+pick any json object from response.data and fetch id
+
+5. lets create a contact now
+url : https://desk.zoho.in/api/v1/tickets
+header:
+	Authorization: Zoho-oauthtoken <present-access_token>
+body: application/json
+	{
+	  "subCategory" : "Sub General",
+	  "productId" : "",
+	  "contactId" : "32789000000081027",
+	  "subject" : "Real Time analysis Requirement",
+	  "dueDate" : "2016-06-21T16:16:16.000Z",
+	  "departmentId" : "32789000000010772",
+	  "channel" : "Email",
+	  "description" : "Hai This is Description",
+	  "language" : "English",
+	  "priority" : "High",
+	  "classification" : "",
+	  "phone" : "1 888 900 9646",
+	  "category" : "general",
+	  "email" : "carol@zylker.com",
+	  "status" : "Open"
+	}
+	
+thats it.
