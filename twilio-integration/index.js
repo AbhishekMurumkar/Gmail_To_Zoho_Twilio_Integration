@@ -1,12 +1,13 @@
 const TinyURL = require('tinyurl');
-const path     = require("path");
-require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+const path    = require("path");
+const config  = require("../config");
 const client = require("twilio")(
-  process.env.twilioAccountSID,
-  process.env.twilioAuthToken
+  config.twilioAccountSID,
+  config.twilioAuthToken
 );
 
 let sendURLToMobile = (url) => {
+  console.log("Generating Short Url");
   if (url == undefined || url == null || url == "") {
     throw new Error("Not a valid URL to shorten");
   }

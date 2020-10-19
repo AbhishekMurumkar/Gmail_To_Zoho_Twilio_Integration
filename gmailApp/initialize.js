@@ -3,7 +3,7 @@ const path          = require("path");
 const readline      = require("readline");
 const { google }    = require("googleapis");
 const createTickets = require("../zoho-app/createTicket").createTickets;
-const SCOPES        = ["https://www.googleapis.com/auth/gmail.readonly"];
+const SCOPES        = require("../config").GMAIL_SCOPES;
 const TOKEN_PATH    = path.join(__dirname, "token.json");
 
 // Load client secrets from a local file.
@@ -63,18 +63,31 @@ async function readUnReadMailsFromGmail(auth, callback) {
   try {
     let temp = await gmail.users.messages.list({
       "userId": "me",
-      "maxResults": 1
+      "labelIds":["INBOX","UNREAD"],
+      "maxResults": 5
     });
     temp = temp.data.messages;
-    for (var i in temp) {
-      let m = await gmail.users.messages.get({ userId: "me", id: temp[i].id });
-      await msgs.push({
-        id:m.data.id,
-        body:m.data.snippet,
-        subject:m.data.payload.headers.filter(e=>e.name==="Subject")[0].value
-      });
+      // console.log(temp);
+    if(temp!=undefined && temp.length > 0){
+      for (var i in temp) {
+        let m = await gmail.users.messages.get({ userId: "me", id: temp[i].id });
+        let subject= await m.data.payload.headers.filter(e=>e.name==="Subject")[0].value;
+        // console.log(m.data.id,subject);
+        await msgs.push({
+          id:m.data.id,
+          body:m.data.snippet,
+          subject:subject
+        });
+        // changing status of Unread mails to "READ"
+        await gmail.users.messages.modify({id:m.data.id,userId:"me",requestBody:{
+          "addLabelIds":["INBOX"],
+          "removeLabelIds":["UNREAD"]
+        }});
+      }
+      await createTickets(msgs);
+    }else{
+      console.log("No New Messages found");
     }
-    await createTickets(msgs);
   } catch (err) {
     console.log(err);
   }

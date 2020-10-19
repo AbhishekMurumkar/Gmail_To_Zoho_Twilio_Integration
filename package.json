@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^8.2.0",
     "googleapis": "^61.0.0",
+    "node-cron": "^2.0.3",
+    "nodemon": "^2.0.5",
     "request": "^2.88.2",
     "tinyurl": "^1.1.7",
     "twilio": "^3.50.0"

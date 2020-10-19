@@ -2,23 +2,23 @@ const path         = require("path");
 const request      = require("request");
 const sendURL      = require("../twilio-integration").sendURL;
 const Ticket       = require("./Ticket").default;
-require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
-
+const config       = require("../config");
 let   access_token = null;
 
 function initializeToken() {
+  console.log("Connecting to Zoho Account");
   let token_options = {
     method : "POST",
-    url    : process.env.refresh_url,
+    url    : config.refresh_url,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     form: {
-      refresh_token: process.env.refresh_token,
-      client_id    : process.env.client_id,
-      client_secret: process.env.client_secret,
-      scope        : process.env.scope,
-      redirect_url : process.env.redirect_url,
+      refresh_token: config.refresh_token,
+      client_id    : config.client_id,
+      client_secret: config.client_secret,
+      scope        : config.scope,
+      redirect_url : config.redirect_url,
       grant_type   : "refresh_token",
     },
   };
@@ -36,12 +36,13 @@ function initializeToken() {
 async function createTicket(data) {
   try {
     access_token = await initializeToken();
+    console.log("Connected to Zoho Account. Now creating a ticket");
     for (var i in data) {
       let ticket = new Ticket(data[i].subject,data[i].body);
     //   console.log(ticket.getData());
       let ticket_options = {
         method : "POST",
-        url    : process.env.tickets_url,
+        url    : config.tickets_url,
         headers: {
           Authorization : "Zoho-oauthtoken " + access_token,
           "Content-Type": "application/json",
@@ -51,6 +52,7 @@ async function createTicket(data) {
       request(ticket_options, (err, resp) => {
         if (err) throw err;
         else {
+          console.log("Ticket Created Successfully.");
           let temp      = JSON.parse(resp.body);
           let ticketURL = temp.webUrl;
         //   console.log(temp);
